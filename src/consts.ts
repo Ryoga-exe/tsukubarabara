@@ -4,6 +4,9 @@ export const BACKGROUND_COLOUR = "#00BFD6";
 export const TEXT_COLOUR = "#FFFFFF";
 
 export const WALL_THICKNESS = 60;
+export const OFFSET_X = 0;
+export const OFFSET_Y = 0;
+export const SCALE_RATIO = 1.2 / 1080.0;
 
 export const LETTERS: Readonly<Letter[]> = [
   // 1

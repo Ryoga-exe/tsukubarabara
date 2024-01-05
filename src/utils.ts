@@ -1,6 +1,10 @@
 import { Bodies, Body, Svg, Vector, Vertices } from "matter-js";
 import type { Part } from "./types";
-import { TEXT_COLOUR } from "./consts";
+import { TEXT_COLOUR, OFFSET_X, OFFSET_Y, SCALE_RATIO } from "./consts";
+
+export function calcateScaleFactor(): number {
+  return Math.min(window.innerWidth, window.innerHeight) * SCALE_RATIO;
+}
 
 export function createLetterBody(letter: string, parts: Part[]): Body {
   const letterParts: Body[] = [];
@@ -8,7 +12,7 @@ export function createLetterBody(letter: string, parts: Part[]): Body {
     const path = document.querySelector(`#${letter}-${part.id} > path`) as SVGPathElement;
     const vertices = Vertices.scale(Svg.pathToVertices(path, part.sampleLength), 10, 10, Vector.create());
     const colour = part.colour || TEXT_COLOUR;
-    const body = Bodies.fromVertices(100 + part.position.x, 100 + part.position.y, [vertices], {
+    const body = Bodies.fromVertices(OFFSET_X + part.position.x, OFFSET_Y + part.position.y, [vertices], {
       isStatic: false,
       render: { fillStyle: colour, strokeStyle: colour, lineWidth: 1 },
     });
@@ -21,11 +25,21 @@ export function createLetterBody(letter: string, parts: Part[]): Body {
     );
     letterParts.push(body);
   });
-  if (letterParts.length === 1) {
-    return letterParts[0];
-  }
-  return Body.create({
-    parts: letterParts,
-    isStatic: false,
-  });
+  const scaleFactor = calcateScaleFactor();
+  const result =
+    letterParts.length === 1
+      ? letterParts[0]
+      : Body.create({
+          parts: letterParts,
+          isStatic: false,
+        });
+  Body.scale(result, scaleFactor, scaleFactor);
+  Body.setPosition(
+    result,
+    Vector.create(
+      parts[0].position.x * scaleFactor + (result.position.x - result.bounds.min.x),
+      parts[0].position.y * scaleFactor + (result.position.y - result.bounds.min.y)
+    )
+  );
+  return result;
 }
