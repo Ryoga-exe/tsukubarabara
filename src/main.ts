@@ -1,5 +1,10 @@
 import { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Vector, Body } from "matter-js";
-const THICKNESS = 60;
+
+import { BACKGROUND_COLOUR, WALL_THICKNESS, LETTERS } from "./consts";
+import { createLetterBody } from "./utils";
+
+// const SVG_WIDTH_IN_PX = 100;
+// const SVG_WIDTH_AS_PERCENT_OF_CONTAINER_WIDTH = 0.3;
 
 const engine = Engine.create();
 
@@ -9,9 +14,9 @@ const render = Render.create({
   options: {
     width: window.innerWidth,
     height: window.innerHeight,
-    background: "#00BFD6",
+    background: BACKGROUND_COLOUR,
     wireframes: false,
-    showAngleIndicator: true,
+    showAngleIndicator: false,
   },
 });
 
@@ -29,44 +34,65 @@ const mouseConstraint = MouseConstraint.create(engine, {
 
 Composite.add(engine.world, mouseConstraint);
 
-let boxA = Bodies.rectangle(400, 200, 80, 80);
-let boxB = Bodies.rectangle(450, 50, 80, 80);
-
-for (let i = 0; i < 10; i++) {
-  const circle = Bodies.circle(i, 10, 30, {
-    friction: 0.3,
-    frictionAir: 0.00001,
-    restitution: 0.8,
-  });
-  Composite.add(engine.world, circle);
-}
-
-let ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + THICKNESS / 2, 27184, THICKNESS, {
+const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + WALL_THICKNESS / 2, 27184, WALL_THICKNESS, {
   isStatic: true,
 });
-
-let leftWall = Bodies.rectangle(0 - THICKNESS / 2, window.innerHeight / 2, THICKNESS, window.innerHeight * 10, {
-  isStatic: true,
-});
-let rightWall = Bodies.rectangle(
-  window.innerWidth + THICKNESS / 2,
+const leftWall = Bodies.rectangle(
+  0 - WALL_THICKNESS / 2,
   window.innerHeight / 2,
-  THICKNESS,
+  WALL_THICKNESS,
+  window.innerHeight * 10,
+  {
+    isStatic: true,
+  }
+);
+const rightWall = Bodies.rectangle(
+  window.innerWidth + WALL_THICKNESS / 2,
+  window.innerHeight / 2,
+  WALL_THICKNESS,
   window.innerHeight * 10,
   {
     isStatic: true,
   }
 );
 
-Composite.add(engine.world, [boxA, boxB, ground, leftWall, rightWall]);
+Composite.add(engine.world, [ground, leftWall, rightWall]);
 render.mouse = mouse;
+
+const loadSvg = function (url: string) {
+  return fetch(url)
+    .then(function (response) {
+      return response.text();
+    })
+    .then(function (raw) {
+      return new window.DOMParser().parseFromString(raw, "image/svg+xml");
+    });
+};
+
+LETTERS.forEach((letter) => {
+  const letterBody = createLetterBody(letter.letter, letter.parts);
+  console.log(letterBody);
+  Composite.add(engine.world, letterBody);
+});
 
 function handleResize() {
   render.canvas.width = window.innerWidth;
   render.canvas.height = window.innerHeight;
-  Body.setPosition(ground, Vector.create(window.innerWidth / 2, window.innerHeight + THICKNESS / 2));
-  Body.setPosition(leftWall, Vector.create(0 - THICKNESS / 2, window.innerHeight / 2));
-  Body.setPosition(rightWall, Vector.create(window.innerWidth + THICKNESS / 2, window.innerHeight / 2));
+  Body.setPosition(ground, Vector.create(window.innerWidth / 2, window.innerHeight + WALL_THICKNESS / 2));
+  Body.setPosition(leftWall, Vector.create(0 - WALL_THICKNESS / 2, window.innerHeight / 2));
+  Body.setPosition(rightWall, Vector.create(window.innerWidth + WALL_THICKNESS / 2, window.innerHeight / 2));
+}
+
+function scaleBodies() {
+  const allBodies = Composite.allBodies(engine.world);
+
+  allBodies.forEach((body) => {
+    if (body.isStatic) {
+      return;
+    }
+    const { min, max } = body.bounds;
+    const bodyWidth = max.x - min.x;
+  });
 }
 
 window.addEventListener("resize", handleResize);
