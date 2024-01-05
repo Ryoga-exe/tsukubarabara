@@ -37,6 +37,7 @@ Composite.add(engine.world, mouseConstraint);
 const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + WALL_THICKNESS / 2, 27184, WALL_THICKNESS, {
   isStatic: true,
 });
+
 const leftWall = Bodies.rectangle(
   0 - WALL_THICKNESS / 2,
   window.innerHeight / 2,
@@ -46,6 +47,7 @@ const leftWall = Bodies.rectangle(
     isStatic: true,
   }
 );
+
 const rightWall = Bodies.rectangle(
   window.innerWidth + WALL_THICKNESS / 2,
   window.innerHeight / 2,
@@ -65,24 +67,24 @@ LETTERS.forEach((letter) => {
   Composite.add(engine.world, letterBody);
 });
 
+// function scaleBodies() {
+//   const allBodies = Composite.allBodies(engine.world);
+
+//   allBodies.forEach((body) => {
+//     if (body.isStatic) {
+//       return;
+//     }
+//     const { min, max } = body.bounds;
+//     const bodyWidth = max.x - min.x;
+//   });
+// }
+
 function handleResize() {
   render.canvas.width = window.innerWidth;
   render.canvas.height = window.innerHeight;
   Body.setPosition(ground, Vector.create(window.innerWidth / 2, window.innerHeight + WALL_THICKNESS / 2));
   Body.setPosition(leftWall, Vector.create(0 - WALL_THICKNESS / 2, window.innerHeight / 2));
   Body.setPosition(rightWall, Vector.create(window.innerWidth + WALL_THICKNESS / 2, window.innerHeight / 2));
-}
-
-function scaleBodies() {
-  const allBodies = Composite.allBodies(engine.world);
-
-  allBodies.forEach((body) => {
-    if (body.isStatic) {
-      return;
-    }
-    const { min, max } = body.bounds;
-    const bodyWidth = max.x - min.x;
-  });
 }
 
 window.addEventListener("resize", handleResize);
