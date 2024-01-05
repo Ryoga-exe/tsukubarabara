@@ -5,7 +5,7 @@ export const TEXT_COLOUR = "#FFFFFF";
 
 export const WALL_THICKNESS = 60;
 
-export const LETTERS: Letter[] = [
+export const LETTERS: Readonly<Letter[]> = [
   // 1
   {
     letter: "I",
@@ -205,4 +205,4 @@ export const LETTERS: Letter[] = [
       },
     ],
   },
-] as const;
+];
