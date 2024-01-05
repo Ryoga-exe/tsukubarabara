@@ -59,16 +59,6 @@ const rightWall = Bodies.rectangle(
 Composite.add(engine.world, [ground, leftWall, rightWall]);
 render.mouse = mouse;
 
-const loadSvg = function (url: string) {
-  return fetch(url)
-    .then(function (response) {
-      return response.text();
-    })
-    .then(function (raw) {
-      return new window.DOMParser().parseFromString(raw, "image/svg+xml");
-    });
-};
-
 LETTERS.forEach((letter) => {
   const letterBody = createLetterBody(letter.letter, letter.parts);
   console.log(letterBody);
